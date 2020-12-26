@@ -1,32 +1,44 @@
 import React, { useState } from 'react';
 import DeleteButton from './DeleteButton';
+import { TodoType } from '../App';
 
-function ListItem({ kkey, todo, onClick, deleteHandler, handleEditedTodo }) {
+type ListItemPropType = {
+  todo: TodoType;
+  onClick(todo: TodoType): void;
+  deleteHandler(todo: TodoType): void;
+  handleEditedTodo(editedTodo: TodoType): void;
+};
+
+function ListItem({
+  todo,
+  onClick,
+  deleteHandler,
+  handleEditedTodo,
+}: ListItemPropType) {
   const style = todo.completed
     ? { textDecoration: 'line-through', opacity: '0.5' }
     : {};
 
-  const [isRadio, setIsRadio] = useState(true);
-  const [isTextBox, setIsTextBox] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
+  const [isRadio, setIsRadio] = useState<boolean>(true);
+  const [isTextBox, setIsTextBox] = useState<boolean>(false);
+  const [isVisible, setIsVisible] = useState<boolean>(false);
 
-  function showTextBox(event) {
+  function showTextBox(event: React.MouseEvent<HTMLDivElement>) {
     setIsRadio(false);
     setIsTextBox(true);
-    event.target.value = todo.todo;
   }
 
-  function showRadioBox() {
+  function showRadioBox(): void {
     setIsRadio(true);
     setIsTextBox(false);
-    handleEditedTodo(todo.key, editedTodo);
+    handleEditedTodo(editedTodo);
   }
 
-  const [editedTodo, setEditedTodo] = useState(todo.todo);
+  const [editedTodo, setEditedTodo] = useState<TodoType>(todo);
 
   return (
     <div
-      className="box is-small is-box-padding-0"
+      className="box is-small m-0 p-0 box-padding-0"
       onDoubleClick={(event) => showTextBox(event)}
       onMouseEnter={() => setIsVisible(true)}
       onMouseLeave={() => setIsVisible(false)}
@@ -36,10 +48,10 @@ function ListItem({ kkey, todo, onClick, deleteHandler, handleEditedTodo }) {
           {isRadio && (
             <label className="radio" style={style}>
               <input
-                key={kkey}
+                key={todo.key}
                 type="radio"
                 name="answer"
-                onClick={() => onClick(todo.todo)}
+                onClick={() => onClick(todo)}
               />
               {todo.todo}
             </label>
@@ -48,15 +60,16 @@ function ListItem({ kkey, todo, onClick, deleteHandler, handleEditedTodo }) {
             <div className="field">
               <div className="control">
                 <input
-                  key={kkey}
+                  key={todo.key}
                   className="input"
                   type="text"
                   placeholder={todo.todo}
                   onBlur={showRadioBox}
-                  onChange={(event) => setEditedTodo(event.target.value)}
+                  onChange={(event) =>
+                    setEditedTodo({ ...editedTodo, todo: event.target.value })
+                  }
                   onKeyPress={(event) => {
                     if (event.key === 'Enter') {
-                      console.log(event.key);
                       showRadioBox();
                     }
                   }}

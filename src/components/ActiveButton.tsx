@@ -1,6 +1,10 @@
 import React from 'react';
 
-function ActiveButton({ activeHandler }) {
+type activePropType = {
+  activeHandler(): void;
+};
+
+function ActiveButton({ activeHandler }: activePropType) {
   return (
     <div className="column is-4">
       <button className="button" onClick={activeHandler}>

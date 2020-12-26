@@ -1,6 +1,8 @@
 import React from 'react';
-
-function CompletedButton({ completedHandler }) {
+type completedPropType = {
+  completedHandler(): void;
+};
+function CompletedButton({ completedHandler }: completedPropType) {
   return (
     <div className="column is-4">
       <button className="button" onClick={completedHandler}>

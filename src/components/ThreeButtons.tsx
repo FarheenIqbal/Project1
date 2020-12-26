@@ -3,7 +3,16 @@ import AllButton from './AllButton';
 import ActiveButton from './ActiveButton';
 import CompletedButton from './CompletedButton';
 
-function ThreeButtons({ allHandler, activeHandler, completedHandler }) {
+type ThreeButtonsProp = {
+  allHandler(): void;
+  activeHandler(): void;
+  completedHandler(): void;
+};
+function ThreeButtons({
+  allHandler,
+  activeHandler,
+  completedHandler,
+}: ThreeButtonsProp) {
   return (
     <div className="columns">
       <AllButton allHandler={allHandler} />

@@ -1,6 +1,9 @@
 import React from 'react';
 
-function AllButton({ allHandler }) {
+type allPropType = {
+  allHandler(): void;
+};
+function AllButton({ allHandler }: allPropType) {
   return (
     <div className="column is-4">
       <button className="button" onClick={allHandler}>
