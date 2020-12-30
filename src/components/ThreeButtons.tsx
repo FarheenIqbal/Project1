@@ -1,23 +1,27 @@
 import React from 'react';
-import AllButton from './AllButton';
-import ActiveButton from './ActiveButton';
-import CompletedButton from './CompletedButton';
+import { ButtonType } from '../App';
 
 type ThreeButtonsProp = {
-  allHandler(): void;
-  activeHandler(): void;
-  completedHandler(): void;
+  handleButton(current: ButtonType): void;
 };
-function ThreeButtons({
-  allHandler,
-  activeHandler,
-  completedHandler,
-}: ThreeButtonsProp) {
+function ThreeButtons({ handleButton }: ThreeButtonsProp) {
   return (
     <div className="columns">
-      <AllButton allHandler={allHandler} />
-      <ActiveButton activeHandler={activeHandler} />
-      <CompletedButton completedHandler={completedHandler} />
+      <div className="column is-4">
+        <button className="button" onClick={() => handleButton('All')}>
+          All
+        </button>
+      </div>
+      <div className="column is-4">
+        <button className="button" onClick={() => handleButton('Active')}>
+          Active
+        </button>
+      </div>
+      <div className="column is-4">
+        <button className="button" onClick={() => handleButton('Completed')}>
+          Completed
+        </button>
+      </div>
     </div>
   );
 }

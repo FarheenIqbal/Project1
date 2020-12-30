@@ -3,6 +3,7 @@ import List from './components/List';
 import TextField from './components/TextField';
 import ThreeButtons from './components/ThreeButtons';
 import { db } from './firebase';
+import toast, { Toaster } from 'react-hot-toast';
 
 export type TodoType = {
   todo: string;
@@ -10,10 +11,11 @@ export type TodoType = {
   completed: boolean;
 };
 
+export type ButtonType = 'All' | 'Completed' | 'Active';
+
 function App() {
   const [todos, setTodos] = useState<TodoType[]>([]);
-  const [displayTodos, setDisplayTodos] = useState<TodoType[]>([]);
-  const [inFocus, setInFocus] = useState<'All' | 'Active' | 'Completed'>('All');
+  const [selected, setSelected] = useState<ButtonType>('All');
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   function saveTodoInDb(todoInput: string): string {
@@ -24,7 +26,7 @@ function App() {
         key: newDocRef.id,
         completed: false,
       })
-      .then(() => console.log('added', newDocRef.id))
+      .then(() => toast(`added ${newDocRef.id}`))
       .catch(console.error);
     return newDocRef.id;
   }
@@ -46,7 +48,6 @@ function App() {
         })
         .then(() => {
           setTodos(arr);
-          setDisplayTodos(arr);
           setIsLoading(false);
         })
         .catch(console.error);
@@ -59,7 +60,6 @@ function App() {
     const arr: TodoType[] = [...todos];
     arr.push({ todo: todoInput, key: id, completed: false });
     setTodos(arr);
-    setDisplayTodos(arr);
   }
 
   function handleEnter(
@@ -78,11 +78,10 @@ function App() {
       (element) => element.todo !== todo.todo
     );
     setTodos(arr);
-    setDisplayTodos(arr);
     db.collection('todos')
       .doc(todo.key)
       .delete()
-      .then(() => console.log('deleted', todo.key));
+      .then(() => toast(`deleted ${todo.todo}`));
   }
 
   function doneHandler(todo: TodoType) {
@@ -93,36 +92,11 @@ function App() {
         db.collection('todos')
           .doc(todo.key)
           .update(arr[i])
-          .then(() => console.log('updated', todo))
+          .then(() => console.log(`updated ${todo.todo}`))
           .catch(console.error);
       }
     }
     setTodos(arr);
-    if (inFocus === 'All') displayAllTodos();
-    else if (inFocus === 'Completed') displayCompletedTodos();
-    else displayActiveTodos();
-  }
-
-  function displayCompletedTodos() {
-    const arr: TodoType[] = todos.filter(
-      (element) => element.completed === true
-    );
-    setDisplayTodos(arr);
-    setInFocus('Completed');
-  }
-
-  function displayAllTodos() {
-    if (todos.length === 0) return;
-    setDisplayTodos(todos);
-    setInFocus('All');
-  }
-
-  function displayActiveTodos() {
-    const arr: TodoType[] = todos.filter(
-      (element) => element.completed === false
-    );
-    setDisplayTodos(arr);
-    setInFocus('Active');
   }
 
   function handleEditedTodo(editedTodo: TodoType) {
@@ -136,7 +110,28 @@ function App() {
       .catch(console.error);
 
     setTodos(arr);
-    setDisplayTodos(arr);
+  }
+
+  function getTodos(): TodoType[] {
+    if (selected === 'All') {
+      return todos;
+    }
+    if (selected === 'Active') {
+      const arr: TodoType[] = todos.filter(
+        (element) => element.completed === false
+      );
+      return arr;
+    }
+    if (selected === 'Completed') {
+      const arr: TodoType[] = todos.filter(
+        (element) => element.completed === true
+      );
+      return arr;
+    }
+    return todos;
+  }
+  function handleButton(current: ButtonType) {
+    setSelected(current);
   }
 
   return (
@@ -145,21 +140,18 @@ function App() {
         <h1 className="title has-text-centered has-text-primary">TODO List</h1>
 
         <TextField onKeyPress={handleEnter} />
-        <ThreeButtons
-          allHandler={displayAllTodos}
-          activeHandler={displayActiveTodos}
-          completedHandler={displayCompletedTodos}
-        />
+        <ThreeButtons handleButton={handleButton} />
         {isLoading ? (
           <p className="is-size-1 has-text-danger"> Loading ... </p>
         ) : (
           <List
-            todos={displayTodos}
+            todos={getTodos()}
             onClick={doneHandler}
             deleteHandler={deleteHandler}
             handleEditedTodo={handleEditedTodo}
           />
         )}
+        <Toaster />
       </div>
     </section>
   );
